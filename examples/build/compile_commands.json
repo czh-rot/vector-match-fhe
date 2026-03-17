@@ -1,0 +1,68 @@
+[
+{
+  "directory": "/home/czh/SEAL/native/examples/build",
+  "command": "/usr/bin/c++  -isystem /usr/local/include/SEAL-4.1 -fopenmp -o CMakeFiles/sealexamples.dir/examples.cpp.o -c /home/czh/SEAL/native/examples/examples.cpp",
+  "file": "/home/czh/SEAL/native/examples/examples.cpp",
+  "output": "CMakeFiles/sealexamples.dir/examples.cpp.o"
+},
+{
+  "directory": "/home/czh/SEAL/native/examples/build",
+  "command": "/usr/bin/c++  -isystem /usr/local/include/SEAL-4.1 -fopenmp -o CMakeFiles/sealexamples.dir/0_ckks_vector.cpp.o -c /home/czh/SEAL/native/examples/0_ckks_vector.cpp",
+  "file": "/home/czh/SEAL/native/examples/0_ckks_vector.cpp",
+  "output": "CMakeFiles/sealexamples.dir/0_ckks_vector.cpp.o"
+},
+{
+  "directory": "/home/czh/SEAL/native/examples/build",
+  "command": "/usr/bin/c++  -isystem /usr/local/include/SEAL-4.1 -fopenmp -o CMakeFiles/sealexamples.dir/1_bgv_vector.cpp.o -c /home/czh/SEAL/native/examples/1_bgv_vector.cpp",
+  "file": "/home/czh/SEAL/native/examples/1_bgv_vector.cpp",
+  "output": "CMakeFiles/sealexamples.dir/1_bgv_vector.cpp.o"
+},
+{
+  "directory": "/home/czh/SEAL/native/examples/build",
+  "command": "/usr/bin/c++  -isystem /usr/local/include/SEAL-4.1 -fopenmp -o CMakeFiles/sealexamples.dir/2_bfv_vector.cpp.o -c /home/czh/SEAL/native/examples/2_bfv_vector.cpp",
+  "file": "/home/czh/SEAL/native/examples/2_bfv_vector.cpp",
+  "output": "CMakeFiles/sealexamples.dir/2_bfv_vector.cpp.o"
+},
+{
+  "directory": "/home/czh/SEAL/native/examples/build",
+  "command": "/usr/bin/c++  -isystem /usr/local/include/SEAL-4.1 -fopenmp -o CMakeFiles/sealexamples.dir/3_levels.cpp.o -c /home/czh/SEAL/native/examples/3_levels.cpp",
+  "file": "/home/czh/SEAL/native/examples/3_levels.cpp",
+  "output": "CMakeFiles/sealexamples.dir/3_levels.cpp.o"
+},
+{
+  "directory": "/home/czh/SEAL/native/examples/build",
+  "command": "/usr/bin/c++  -isystem /usr/local/include/SEAL-4.1 -fopenmp -o CMakeFiles/sealexamples.dir/4_bgv_basics.cpp.o -c /home/czh/SEAL/native/examples/4_bgv_basics.cpp",
+  "file": "/home/czh/SEAL/native/examples/4_bgv_basics.cpp",
+  "output": "CMakeFiles/sealexamples.dir/4_bgv_basics.cpp.o"
+},
+{
+  "directory": "/home/czh/SEAL/native/examples/build",
+  "command": "/usr/bin/c++  -isystem /usr/local/include/SEAL-4.1 -fopenmp -o CMakeFiles/sealexamples.dir/5_ckks_basics.cpp.o -c /home/czh/SEAL/native/examples/5_ckks_basics.cpp",
+  "file": "/home/czh/SEAL/native/examples/5_ckks_basics.cpp",
+  "output": "CMakeFiles/sealexamples.dir/5_ckks_basics.cpp.o"
+},
+{
+  "directory": "/home/czh/SEAL/native/examples/build",
+  "command": "/usr/bin/c++  -isystem /usr/local/include/SEAL-4.1 -fopenmp -o CMakeFiles/sealexamples.dir/6_rotation.cpp.o -c /home/czh/SEAL/native/examples/6_rotation.cpp",
+  "file": "/home/czh/SEAL/native/examples/6_rotation.cpp",
+  "output": "CMakeFiles/sealexamples.dir/6_rotation.cpp.o"
+},
+{
+  "directory": "/home/czh/SEAL/native/examples/build",
+  "command": "/usr/bin/c++  -isystem /usr/local/include/SEAL-4.1 -fopenmp -o CMakeFiles/sealexamples.dir/7_serialization.cpp.o -c /home/czh/SEAL/native/examples/7_serialization.cpp",
+  "file": "/home/czh/SEAL/native/examples/7_serialization.cpp",
+  "output": "CMakeFiles/sealexamples.dir/7_serialization.cpp.o"
+},
+{
+  "directory": "/home/czh/SEAL/native/examples/build",
+  "command": "/usr/bin/c++  -isystem /usr/local/include/SEAL-4.1 -fopenmp -o CMakeFiles/sealexamples.dir/8_performance.cpp.o -c /home/czh/SEAL/native/examples/8_performance.cpp",
+  "file": "/home/czh/SEAL/native/examples/8_performance.cpp",
+  "output": "CMakeFiles/sealexamples.dir/8_performance.cpp.o"
+},
+{
+  "directory": "/home/czh/SEAL/native/examples/build",
+  "command": "/usr/bin/c++  -isystem /usr/local/include/SEAL-4.1 -fopenmp -o CMakeFiles/sealexamples.dir/9_bfv_vector.cpp.o -c /home/czh/SEAL/native/examples/9_bfv_vector.cpp",
+  "file": "/home/czh/SEAL/native/examples/9_bfv_vector.cpp",
+  "output": "CMakeFiles/sealexamples.dir/9_bfv_vector.cpp.o"
+}
+]
