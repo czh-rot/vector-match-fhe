@@ -24,6 +24,8 @@ void vector_match();
 
 int main2();
 
+int main2_bgv();
+
 void vector_match_parallel();
 
 void example_bfv_basics();
