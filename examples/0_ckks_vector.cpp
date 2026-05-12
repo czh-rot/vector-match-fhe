@@ -23,7 +23,8 @@
 
 #include "seal/seal.h"
 #include <omp.h>
-
+#include <string>
+#include <iomanip>
 #include <algorithm>
 #include <cassert>
 #include <chrono>
@@ -772,39 +773,183 @@ void vector_match_ckks_bsgs_packed(
 
 /* ------------------- 示例 main：直接跑 PACKED BSGS ------------------- */
 
+/* ------------------- Paper-style benchmark driver: CKKS ------------------- */
+
+static const char* ckks_mode_name(EmbMode m) {
+    switch (m) {
+        case EmbMode::Gaussian: return "Gaussian";
+        case EmbMode::Sparse:   return "Sparse";
+        case EmbMode::Uniform:  return "Uniform";
+        case EmbMode::Test:     return "Test";
+        default:                return "Unknown";
+    }
+}
+
+enum class CKKSAlg { NaiveDiag, BSGSPacked };
+
+static const char* ckks_alg_name(CKKSAlg a) {
+    switch (a) {
+        case CKKSAlg::NaiveDiag:  return "NaiveDiag";
+        case CKKSAlg::BSGSPacked: return "BSGSPacked";
+        default:                  return "Unknown";
+    }
+}
+
+static bool run_ckks_case(
+    const std::string &group,
+    const std::string &case_id,
+    CKKSAlg alg,
+    size_t poly_degree,
+    size_t num_embeddings,
+    size_t dim,
+    size_t threads,
+    EmbMode data_mode,
+    uint32_t data_seed,
+    uint32_t query_seed,
+    double ckks_scale,
+    size_t top_k)
+{
+    std::cerr << "\nBENCH_BEGIN"
+              << ",scheme=CKKS"
+              << ",alg=" << ckks_alg_name(alg)
+              << ",group=" << group
+              << ",case=" << case_id
+              << ",poly=" << poly_degree
+              << ",N=" << num_embeddings
+              << ",D=" << dim
+              << ",threads=" << threads
+              << ",mode=" << ckks_mode_name(data_mode)
+              << ",qmode=FromDB"
+              << ",metric=Cosine"
+              << ",scale=" << std::setprecision(12) << ckks_scale
+              << ",topk=" << top_k
+              << ",l2=1"
+              << std::endl;
+
+    auto t0 = std::chrono::high_resolution_clock::now();
+
+    try {
+        if (alg == CKKSAlg::NaiveDiag) {
+            vector_match_ckks_naive_diag(
+                poly_degree, num_embeddings, dim, threads,
+                data_mode, data_seed, query_seed, ckks_scale, top_k);
+        } else {
+            vector_match_ckks_bsgs_packed(
+                poly_degree, num_embeddings, dim, threads,
+                data_mode, data_seed, query_seed, ckks_scale, top_k);
+        }
+
+        auto t1 = std::chrono::high_resolution_clock::now();
+        auto wall_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0).count();
+
+        std::cerr << "BENCH_END"
+                  << ",scheme=CKKS"
+                  << ",alg=" << ckks_alg_name(alg)
+                  << ",group=" << group
+                  << ",case=" << case_id
+                  << ",wall_ms=" << wall_ms
+                  << ",status=OK"
+                  << std::endl;
+        return true;
+
+    } catch (const std::exception &e) {
+        auto t1 = std::chrono::high_resolution_clock::now();
+        auto wall_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0).count();
+
+        std::cerr << "BENCH_END"
+                  << ",scheme=CKKS"
+                  << ",alg=" << ckks_alg_name(alg)
+                  << ",group=" << group
+                  << ",case=" << case_id
+                  << ",wall_ms=" << wall_ms
+                  << ",status=FAIL"
+                  << ",error=\"" << e.what() << "\""
+                  << std::endl;
+        return false;
+    }
+}
+
+/* 如果 examples.cpp 调用的是 vector_match()，保留这个函数名 */
 int vector_match() {
-    size_t POLY_DEGREE     = 4096;
-    size_t NUM_EMBEDDINGS  = 4096;
-    size_t DIM             = 1024;
-    size_t OMP_THREADS     = 64;
-    uint32_t DATA_SEED     = 2025;
-    uint32_t QUERY_SEED    = 7;
-    size_t TOP_K           = 100;
-    double CKKS_SCALE      = std::pow(2.0, 30);
+    const size_t POLY = 4096;
+    const uint32_t DATA_SEED  = 2025;
+    const uint32_t QUERY_SEED = 7;
+    const size_t TOP_K = 100;
+    const double CKKS_SCALE = std::pow(2.0, 30);
 
-    // 1) 可以先用 Test 模式 sanity check
-    /*
-    vector_match_ckks_bsgs_packed(
-        POLY_DEGREE, NUM_EMBEDDINGS, DIM, OMP_THREADS,
-        EmbMode::Test, DATA_SEED, QUERY_SEED, CKKS_SCALE, TOP_K);
-    */
+    int failed = 0;
 
-    // 2) 实际 Uniform 数据 + Cosine
-    vector_match_ckks_bsgs_packed(
-        POLY_DEGREE, NUM_EMBEDDINGS, DIM, OMP_THREADS,
+    // 0. Sanity check
+    failed += !run_ckks_case(
+        "sanity", "test_bsgs_N1024_D128",
+        CKKSAlg::BSGSPacked,
+        POLY, 1024, 128, 64,
+        EmbMode::Test, DATA_SEED, QUERY_SEED, CKKS_SCALE, 16);
+
+    // 1. Algorithm comparison: naive diagonal vs packed BSGS
+    failed += !run_ckks_case(
+        "algorithm", "naive_N2048_D1024",
+        CKKSAlg::NaiveDiag,
+        POLY, 2048, 1024, 64,
         EmbMode::Uniform, DATA_SEED, QUERY_SEED, CKKS_SCALE, TOP_K);
-    vector_match_ckks_bsgs_packed(
-    POLY_DEGREE, NUM_EMBEDDINGS, DIM, OMP_THREADS,
-    EmbMode::Uniform, DATA_SEED, QUERY_SEED, CKKS_SCALE, TOP_K);
-    vector_match_ckks_bsgs_packed(
-    POLY_DEGREE, NUM_EMBEDDINGS, DIM, OMP_THREADS,
-    EmbMode::Uniform, DATA_SEED, QUERY_SEED, CKKS_SCALE, TOP_K);
-    vector_match_ckks_bsgs_packed(
-    POLY_DEGREE, NUM_EMBEDDINGS, DIM, OMP_THREADS,
-    EmbMode::Uniform, DATA_SEED, QUERY_SEED, CKKS_SCALE, TOP_K);
-    vector_match_ckks_bsgs_packed(
-    POLY_DEGREE, NUM_EMBEDDINGS, DIM, OMP_THREADS,
-    EmbMode::Uniform, DATA_SEED, QUERY_SEED, CKKS_SCALE, TOP_K);
 
-    return 0;
+    failed += !run_ckks_case(
+        "algorithm", "bsgs_packed_N2048_D1024",
+        CKKSAlg::BSGSPacked,
+        POLY, 2048, 1024, 64,
+        EmbMode::Uniform, DATA_SEED, QUERY_SEED, CKKS_SCALE, TOP_K);
+
+    failed += !run_ckks_case(
+        "algorithm", "bsgs_packed_N4096_D1024",
+        CKKSAlg::BSGSPacked,
+        POLY, 4096, 1024, 64,
+        EmbMode::Uniform, DATA_SEED, QUERY_SEED, CKKS_SCALE, TOP_K);
+
+    // 2. Database scalability
+    for (size_t N : {2048ULL, 4096ULL, 8192ULL, 16384ULL}) {
+        failed += !run_ckks_case(
+            "db_scaling", "N" + std::to_string(N) + "_D1024",
+            CKKSAlg::BSGSPacked,
+            POLY, N, 1024, 64,
+            EmbMode::Uniform, DATA_SEED, QUERY_SEED, CKKS_SCALE, TOP_K);
+    }
+
+    // 3. Dimension scalability
+    for (size_t D : {128ULL, 256ULL, 512ULL, 1024ULL}) {
+        failed += !run_ckks_case(
+            "dim_scaling", "N4096_D" + std::to_string(D),
+            CKKSAlg::BSGSPacked,
+            POLY, 4096, D, 64,
+            EmbMode::Uniform, DATA_SEED, QUERY_SEED, CKKS_SCALE, TOP_K);
+    }
+
+    // 4. Thread scalability
+    for (size_t T : {1ULL, 2ULL, 4ULL, 8ULL, 16ULL, 32ULL, 64ULL}) {
+        failed += !run_ckks_case(
+            "thread_scaling", "N4096_D1024_T" + std::to_string(T),
+            CKKSAlg::BSGSPacked,
+            POLY, 4096, 1024, T,
+            EmbMode::Uniform, DATA_SEED, QUERY_SEED, CKKS_SCALE, TOP_K);
+    }
+
+    // 5. Data distribution
+    failed += !run_ckks_case(
+        "data_distribution", "uniform",
+        CKKSAlg::BSGSPacked,
+        POLY, 4096, 1024, 64,
+        EmbMode::Uniform, DATA_SEED, QUERY_SEED, CKKS_SCALE, TOP_K);
+
+    failed += !run_ckks_case(
+        "data_distribution", "gaussian",
+        CKKSAlg::BSGSPacked,
+        POLY, 4096, 1024, 64,
+        EmbMode::Gaussian, DATA_SEED, QUERY_SEED, CKKS_SCALE, TOP_K);
+
+    failed += !run_ckks_case(
+        "data_distribution", "sparse",
+        CKKSAlg::BSGSPacked,
+        POLY, 4096, 1024, 64,
+        EmbMode::Sparse, DATA_SEED, QUERY_SEED, CKKS_SCALE, TOP_K);
+
+    return failed == 0 ? 0 : 1;
 }
