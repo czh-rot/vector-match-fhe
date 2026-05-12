@@ -71,7 +71,7 @@ int main()
             break;
 
         case 1:
-            example_bfv_basics();
+            main2_bgv();
             break;
 
         case 2:
